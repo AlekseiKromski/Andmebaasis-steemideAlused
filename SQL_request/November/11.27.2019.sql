@@ -3,7 +3,6 @@ USE smpl_AlekseiKromski
 --system requests
 SELECT * FROM employee
 SELECT * FROM emp_d1_d2
-SELECT * FROM works_on
 SELECT * FROM emp_2008
 SELECT * FROM emp_2008_2
 SELECT * FROM works_on
@@ -45,3 +44,13 @@ UPDATE department SET dept_name = 'Sales'  WHERE dept_no IN (SELECT dept_no FROM
 
 --9.9
 UPDATE works_on SET enter_date = '2009-12-12' FROM works_on, department, employee WHERE works_on.emp_no = employee.emp_no AND employee.dept_no = department.dept_no AND project_no = 'p1' AND dept_name = 'Sales'
+
+--9.10
+DELETE FROM department WHERE location = 'Seattle'
+
+--9.11
+DELETE FROM works_on WHERE project_no = 'p3'
+DELETE FROM project WHERE project_no = 'p3'
+
+--9.12
+DELETE FROM works_on, employee, department WHERE department.dept_no =  employee.dept_no AND works_on.emp_no = employee.emp_no AND location = 'Dallas'
