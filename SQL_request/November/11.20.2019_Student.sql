@@ -1,6 +1,7 @@
 USE STUDENT
 
 SELECT *,SUBSTRING(ID_Isikukood,2,2) as y, SUBSTRING(ID_Isikukood,4,2) as m, SUBSTRING(ID_Isikukood,6,2) as d,
+
 CASE
 	WHEN LEFT(ID_Isikukood,1) = 3 THEN 'Male'
 	WHEN LEFT(ID_Isikukood,1) = 5 THEN 'Male'
