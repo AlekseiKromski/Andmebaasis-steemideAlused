@@ -24,7 +24,7 @@ CREATE TABLE sales(
 	count_product INTEGER DEFAULT 1 NOT NULL,
 	sales_ClearanceDate DATETIME DEFAULT Getdate() NOT NULL,
 	treatmentDate DATETIME DEFAULT Getdate() + 3, CHECK (treatmentDate >= sales_ClearanceDate),
-	CONSTRAINT FK_product FOREIGN KEY(product) REFERENCES product (product_no)) 
+	CONSTRAINT FK_product FOREIGN KEY(product) REFERENCES product (product_no) ON DELETE CASCADE) 
 
 --Isert data to tables 
 --v1
@@ -53,3 +53,7 @@ SELECT sales.sales_no,sales.product,sales.count_product, product.product_name, p
 FROM sales JOIN product ON sales.product = product.product_no
 
 SELECT SUM(sales.count_product * product.price) AS earned, COUNT(sales.count_product) as CountSales FROM sales JOIN product ON sales.product = product.product_no --Показывает, сколько всего заработано и коль.-во товара
+
+INSERT INTO sales (product,count_product,sales_ClearanceDate,treatmentDate) VALUES (10004,10,DEFAULT,DEFAULT)
+
+DELETE FROM product WHERE product_no = 10001
