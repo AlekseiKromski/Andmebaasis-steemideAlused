@@ -28,7 +28,7 @@ SELECT * FROM study
 * 
 *
 *
-* В system query описаны запросы для debuga и проверки таблиц
+* В system query описаны запросы для debug'a и проверки таблиц
 */
 
 --Table profession
