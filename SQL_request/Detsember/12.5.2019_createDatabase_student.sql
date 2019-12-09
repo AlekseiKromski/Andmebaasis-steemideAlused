@@ -31,6 +31,9 @@ SELECT * FROM study
 * В system query описаны запросы для debug'a и проверки таблиц
 */
 
+--Insert data into student
+INSERT INTO student VALUES (62454567875,'Kali','Kestk','+37254564654','none@mail.ru','Narva mnt','Johvi','JKKKR19')
+
 --Table profession
 CREATE TABLE profession (id_profession INTEGER IDENTITY(10000,1) NOT NULL CONSTRAINT PK_id_profession PRIMARY KEY, name_profession CHAR(30) NOT NULL)
 --Inser data into profession
@@ -56,10 +59,26 @@ CREATE TABLE study (sudent varchar(20) NOT NULL,
 	start_study DATE NOT NULL DEFAULT getDate(),
 	finish_study DATE NULL DEFAULT getDate(),
 	study_status CHAR(20) NOT NULL, CHECK(study_status IN ('study','finish','expelled')),
-	CONSTRAINT FK_sudent FOREiGN KEY(sudent) REFERENCES student (ID_Isikukood),
-	CONSTRAINT FK_schoolGroup FOREiGN KEY(schoolGroup) REFERENCES schoolGroup (id_group))
+	CONSTRAINT FK_sudent FOREIGN KEY(sudent) REFERENCES student (ID_Isikukood),
+	CONSTRAINT FK_schoolGroup FOREIGN KEY(schoolGroup) REFERENCES schoolGroup (id_group))
 --Insert data into study
-INSERT INTO study VALUES (50208302215,'JPTVR18','2018-09-01',NULL,'study'),
-	(50405028515,'KTVRI18','2017-09-01',DEFAULT,'finish'),
-	(40405028512,'JKKKR19','2017-09-01','2017-12-06','expelled')
+INSERT INTO study VALUES (50208302215,'JKKKR19','2018-09-01',NULL,'expelled')
 
+
+--Qery Task
+--1
+SELECT * FROM student WHERE [group] = 'JPTVR18'
+
+--2
+SELECT schoolGroup, COUNT(schoolGroup) AS student FROM study GROUP BY schoolGroup
+
+--3
+SELECT schoolGroup, COUNT(schoolGroup) AS finish_study FROM study WHERE study_status = 'finish' GROUP BY schoolGroup
+
+--4
+SELECT schoolGroup, COUNT(schoolGroup) FROM study WHERE schoolGroup in (SELECT id_group FROM schoolGroup WHERE profession in (SELECT id_profession FROM profession)) GROUP BY schoolGroup
+
+--5
+SELECT finish_study, COUNT(sudent) FROM study WHERE schoolGroup in (SELECT id_group FROM schoolGroup WHERE profession in (SELECT id_profession FROM profession)) GROUP BY finish_study
+
+--6
