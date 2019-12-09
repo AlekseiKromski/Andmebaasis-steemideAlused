@@ -82,4 +82,4 @@ SELECT schoolGroup, COUNT(schoolGroup) FROM study WHERE schoolGroup in (SELECT i
 SELECT finish_study, COUNT(sudent) FROM study WHERE schoolGroup in (SELECT id_group FROM schoolGroup WHERE profession in (SELECT id_profession FROM profession)) AND study_status = 'expelled' GROUP BY finish_study
 
 --6
-SELECT schoolGroup, COUNT(schoolGroup) AS student FROM study WHERE schoolGroup in (SELECT id_group FROM schoolGroup WHERE profession in (SELECT id_profession FROM profession)) AND MONTH(start_study) = 09  GROUP BY schoolGroup
+SELECT schoolGroup, COUNT(schoolGroup) AS student FROM study WHERE schoolGroup in (SELECT id_group FROM schoolGroup WHERE profession in (SELECT id_profession FROM profession)) AND MONTH(start_study) = 09 AND YEAR(start_study) = 2018 GROUP BY schoolGroup
