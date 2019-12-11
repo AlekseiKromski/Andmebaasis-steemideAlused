@@ -36,6 +36,7 @@ SELECT * FROM department
 --Insert data into student
 INSERT INTO student VALUES (62454567875,'Kali','Kestk','+37254564654','none@mail.ru','Narva mnt','Johvi','JKKKR19')
 
+
 --Table profession
 CREATE TABLE profession (id_profession INTEGER IDENTITY(10000,1) NOT NULL CONSTRAINT PK_id_profession PRIMARY KEY, name_profession CHAR(30) NOT NULL)
 
