@@ -165,10 +165,18 @@ CREATE TABLE Employees(
   Email nvarchar(30),
   PositionID int,
   DepartmentID int,
-  HireDate date NOT NULL DEFAULT SYSDATETIME(), -- для DEFAULT я сделаю исключение
+  HireDate date NOT NULL CONSTRAINT DF_Employees_HireDate DEFAULT SYSDATETIME(),
+  ManagerID int,
 CONSTRAINT PK_Employees PRIMARY KEY (ID),
-CONSTRAINT FK_Employees_DepartmentID FOREIGN KEY(DepartmentID) REFERENCES Departments(ID),
-CONSTRAINT FK_Employees_PositionID FOREIGN KEY(PositionID) REFERENCES Positions(ID),
-CONSTRAINT UQ_Employees_Email UNIQUE (Email),
-CONSTRAINT CK_Employees_ID CHECK (ID BETWEEN 1000 AND 1999)
+CONSTRAINT FK_Employees_DepartmentID FOREIGN KEY(DepartmentID) REFERENCES Departments(id_departments),
+CONSTRAINT FK_Employees_PositionID FOREIGN KEY(PositionID) REFERENCES Positions(id_positions),
+CONSTRAINT FK_Employees_ManagerID FOREIGN KEY (ManagerID) REFERENCES Employees(ID),
+CONSTRAINT UQ_Employees_Email UNIQUE(Email),
+CONSTRAINT CK_Employees_ID CHECK(ID BETWEEN 1000 AND 1999)
 )
+
+INSERT Employees (ID,Name,Birthday,Email,PositionID,DepartmentID,ManagerID)VALUES
+(1000,N'Иванов И.И.','19550219','i.ivanov@test.tt',2,1,NULL),
+(1001,N'Петров П.П.','19831203','p.petrov@test.tt',3,3,1003),
+(1002,N'Сидоров С.С.','19760607','s.sidorov@test.tt',1,2,1000),
+(1003,N'Андреев А.А.','19820417','a.andreev@test.tt',4,3,1000)
