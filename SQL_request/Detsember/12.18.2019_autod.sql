@@ -33,6 +33,10 @@ INSERT INTO cars VALUES ('Hyundai','Kona','1.12.2012',16000,DEFAULT,DEFAULT),('T
 
 ALTER TABLE cars ADD reg_code INTEGER IDENTITY(2017000, 1)
 
+SET IDENTITY_INSERT cars ON
+INSERT cars (reg_code) VALUES (20180000)
+SET IDENTITY_INSERT cars OFF
+
 INSERT INTO cars VALUES ('Hyundai','Kona','1.12.2012',16000,DEFAULT,DEFAULT)
 
 ALTER TABLE cars ADD PRIMARY KEY(reg_code)
@@ -63,4 +67,9 @@ ALTER TABLE customer_cars ADD CONSTRAINT FK_cars FOREIGN KEY(reg_code) REFERENCE
 
 ALTER TABLE customer_cars ADD CONSTRAINT FK_customer FOREIGN KEY(isikukood) REFERENCES customer (isikukood)
 
+SELECT * FROM customer_cars
+
+--SELECT
+SELECT * FROM cars 
+SELECT * FROM customer
 SELECT * FROM customer_cars
