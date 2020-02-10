@@ -26,4 +26,4 @@ CASE
 	ELSE 'error'
 END age
 
-FROM Student
+FROM Student WHERE ID_Isikukood = '50208302215'
