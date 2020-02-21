@@ -77,20 +77,31 @@ FROM date_last
 
 GO
 CREATE FUNCTION lastDay(@date DATE)
-RETURNS @latDay DATE
+RETURNS @lastDay 
 	BEGIN
-	SELECT @latDay = 
-		 datefromparts(YEAR(@date),MONTH(@date),
+		@lastDay = datefromparts(YEAR(@date),MONTH(@date),
 			CASE
 				WHEN MONTH(@date) IN (1,3,5,7,8,10,12) THEN 31
 				WHEN MONTH(@date) IN (4,6,9,11) THEN 30
 				WHEN (YEAR(@date) % 4 = 0 OR YEAR(@date) % 400 = 0) AND YEAR(@date) % 100 != 0 THEN 29
 				ELSE 28
 			END) 
-		RETURN 
+		RETURN @lastDay
 	END
 GO
 
 DROP FUNCTION lastDay
 
 SELECT dbo.lastDay('2020-02-19')
+
+GO
+CREATE FUNCTION get_flname2(@Fam VARCHAR(20))
+RETURNS TABLE
+WITH SCHEMABINDING
+AS
+	RETURN(
+		SELECT emp_no, emp_fname + ' ' + emp_lname AS flname FROM dbo.employee WHERE emp_fname = @Fam
+	)
+GO
+
+SELECT * FROM dbo.get_flname2('Elsa')
