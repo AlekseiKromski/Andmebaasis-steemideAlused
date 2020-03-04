@@ -106,12 +106,17 @@ CREATE TABLE AutitTestTable(
 	Price_Old MONEY NULL,
 	Price_New MONEY NULL,
 	CONSTRAINT PK_AutitTestTable PRIMARY KEY (Id)
-)CREATE TABLE TestTable(
+)
+
+CREATE TABLE TestTable(
 	[ProductId] [INT] IDENTITY(1,1) NOT NULL,
 	[CategoryId] [INT] NOT NULL,
 	[ProductName] [VARCHAR](100) NOT NULL,
 	[Price] [Money] NULL
-)CREATE TRIGGER TRG_Audit_TestTable ON TestTable
+)
+
+
+CREATE TRIGGER TRG_Audit_TestTable ON TestTable
 	AFTER INSERT, UPDATE, DELETE
 AS
 BEGIN
@@ -163,4 +168,6 @@ DELETE TestTable WHERE ProductName = 'Наименование товара'
 SELECT * FROM AutitTestTable
 
 --Включение/отключение триггера 
-DISABLE TRIGGER TRG_Audit_TestTable ON TestTable;ENABLE TRIGGER TRG_Audit_TestTable ON TestTable;
+DISABLE TRIGGER TRG_Audit_TestTable ON TestTable;
+ENABLE TRIGGER TRG_Audit_TestTable ON TestTable;
+
