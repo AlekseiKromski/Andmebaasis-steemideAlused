@@ -34,6 +34,7 @@ MERGE warehouse AS Target USING orderProduct AS Source ON (Target.productId = So
 OUTPUT deleted.*, $action, inserted.*;
 
 
+
 SELECT * FROM warehouse
 
 SELECT * FROM orderProduct
