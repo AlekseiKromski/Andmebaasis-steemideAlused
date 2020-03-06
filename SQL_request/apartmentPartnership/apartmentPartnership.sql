@@ -22,16 +22,35 @@ CREATE TABLE apartmentInfo (apartmentID INT PRIMARY KEY NOT NULL,
 	CONSTRAINT FK_apartmentOwner FOREIGN KEY(apartmentOwner) REFERENCES owners (ownerId)
 	)
 
+--Tariff table 
+CREATE TABLE tariff (
+	tariffID INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	tariffDate DATE NOT NULL,
+	tariffPrice MONEY NOT NULL
+)
+
+--Counter table 
+CREATE TABLE counter (
+	counterDate DATE NOT NULL,
+	counterMWH FLOAT NOT NULL,
+	userEnter VARCHAR(15) NOT NULL DEFAULT 'admin',
+	counterEnter DATE NOT NULL DEFAULT GETDATE()
+)
 
 --### QUERY ###
 USE apartmentPartnership
+
 --Drop query
-DROP TABLE apartmentInfo
 DROP TABLE owners
+DROP TABLE apartmentInfo
+DROP TABLE tariff
+DROP TABLE counter
 
 --Select query
 SELECT * FROM owners
 SELECT * FROM apartmentInfo
+SELECT * FROM tariff
+SELECT * FROM counter
 
 --Insert query
 
@@ -48,6 +67,23 @@ INSERT INTO owners VALUES
 	(50209222215,'Tyler','Robinson','+37235766533','q4aptu@mail.ru'),
 	(50209212215,'Matthew','Nelson','+37211234577','n4zc9kz@yandex.ru')
 
---
+--apartmentInfo insert
 INSERT INTO apartmentInfo VALUES
-	(1,60.0,DEFAULT,DEFAULT,'50208302215')
+	(1,60.0,DEFAULT,DEFAULT,'50208302215'),
+	(2,40.0,'electro',12.0,'50209292215'),
+	(3,50.0,'electro',7.0,'50209282215'),
+	(4,60.0,'gas',12.0,'50209272215'),
+	(5,40.0,DEFAULT,DEFAULT,'50209262215'),
+	(6,60.0,'gas',7.0,'50209252215'),
+	(7,50.0,'electro',17.0,'50209242215'),
+	(8,40.0,'gas',5.0,'50209232215'),
+	(9,40.0,'electro',19.0,'50209222215'),
+	(10,50.0,DEFAULT,DEFAULT,'50209212215')
+
+--tariff insert
+INSERT INTO tariff (tariffDate,tariffPrice) VALUES
+	('2020-03-06',66.26)
+
+--Counter insert
+INSERT INTO counter VALUES
+	(GETDATE(),29.439,DEFAULT,DEFAULT)
