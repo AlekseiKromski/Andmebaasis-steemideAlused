@@ -86,4 +86,25 @@ INSERT INTO tariff (tariffDate,tariffPrice) VALUES
 
 --Counter insert
 INSERT INTO counter VALUES
-	(GETDATE(),29.439,DEFAULT,DEFAULT)
+	('2019-12-31',10.439,DEFAULT,DEFAULT),
+	('2020-01-31',15.439,DEFAULT,DEFAULT),
+	('2020-01-31',20.439,DEFAULT,DEFAULT)
+
+INSERT INTO counter VALUES
+	('2020-03-31',20.439,DEFAULT,DEFAULT),
+	('2020-04-31',25.439,DEFAULT,DEFAULT)
+
+--Procedures
+
+--house bill (—чет дома mwh)
+
+SELECT * FROM apartmentInfo
+GO
+			DECLARE @var1 AS FLOAT
+			DECLARE @var2 AS FLOAT
+			BEGIN
+				SELECT counterMWH FROM counter ORDER BY counterDate OFFSET 2 ROWS
+				SELECT TOP 1 counterMWH FROM counter ORDER BY counterDate DESC
+			END
+		
+GO
