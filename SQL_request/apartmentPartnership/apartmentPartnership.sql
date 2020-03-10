@@ -1,7 +1,11 @@
---Create database 
+--Create database (For school and personal pc)
 CREATE DATABASE apartmentPartnership
 	ON (NAME = projects_dat, FILENAME = 'D:\JPTVR18\Andmebaasis-steemideAlused\SQL_request\apartmentPartnership\db\projects.mdf', SIZE = 5, MAXSIZE = 100, FILEGROWTH = 5)
 	LOG ON (NAME = projects_log, FILENAME = 'D:\JPTVR18\Andmebaasis-steemideAlused\SQL_request\apartmentPartnership\jr\projects.ldf', SIZE = 10, MAXSIZE = 100, FILEGROWTH = 10)
+
+CREATE DATABASE apartmentPartnership
+	ON (NAME = projects_dat, FILENAME = 'C:\Andmebaasis-steemideAlused\SQL_request\apartmentPartnership\db\projects.mdf', SIZE = 5, MAXSIZE = 100, FILEGROWTH = 5)
+	LOG ON (NAME = projects_log, FILENAME = 'C:\Andmebaasis-steemideAlused\SQL_request\apartmentPartnership\jr\projects.ldf', SIZE = 10, MAXSIZE = 100, FILEGROWTH = 10)
 
 --Create tables
 --Owner table
@@ -86,25 +90,33 @@ INSERT INTO tariff (tariffDate,tariffPrice) VALUES
 
 --Counter insert
 INSERT INTO counter VALUES
-	('2019-12-31',10.439,DEFAULT,DEFAULT),
-	('2020-01-31',15.439,DEFAULT,DEFAULT),
-	('2020-01-31',20.439,DEFAULT,DEFAULT)
+	('2020-01-31',15439,DEFAULT,DEFAULT),
+	('2020-01-31',20439,DEFAULT,DEFAULT)
 
 INSERT INTO counter VALUES
-	('2020-03-31',20.439,DEFAULT,DEFAULT),
-	('2020-04-31',25.439,DEFAULT,DEFAULT)
+	('2020-03-30',25439,DEFAULT,DEFAULT),
+	('2020-04-30',30000,DEFAULT,DEFAULT)
 
---Procedures
+--For test
+INSERT INTO counter VALUES
+	('2020-05-30',35000,DEFAULT,DEFAULT),
+	('2020-06-30',40000,DEFAULT,DEFAULT)
 
---house bill (—чет дома mwh)
+INSERT INTO counter VALUES
+	('2020-07-30',45000,DEFAULT,DEFAULT),
+	('2020-08-30',50000,DEFAULT,DEFAULT)
 
-SELECT * FROM apartmentInfo
+--Procedures and functions 
+
+--house bill
+--This package show you "how much house has consumed energy per month"
 GO
-			DECLARE @var1 AS FLOAT
-			DECLARE @var2 AS FLOAT
-			BEGIN
-				SELECT counterMWH FROM counter ORDER BY counterDate OFFSET 2 ROWS
-				SELECT TOP 1 counterMWH FROM counter ORDER BY counterDate DESC
-			END
-		
+	DECLARE @var1 AS FLOAT
+	DECLARE @var2 AS FLOAT
+	DECLARE @result AS FLOAT
+	BEGIN
+		SELECT TOP 1 @var1 = counterMWH FROM counter ORDER BY counterDate DESC
+		SELECT TOP 1 @var2 = counterMWH FROM counter WHERE counterMWH IN (SELECT TOP 2 counterMWH FROM counter ORDER BY counterDate DESC)
+		PRINT @var1 - @var2
+	END
 GO
