@@ -91,7 +91,7 @@ INSERT INTO tariff (tariffDate,tariffPrice) VALUES
 --Counter insert
 INSERT INTO counter VALUES
 	('2020-01-31',15439,DEFAULT,DEFAULT),
-	('2020-01-31',20439,DEFAULT,DEFAULT)
+	('2020-02-28',20439,DEFAULT,DEFAULT)
 
 INSERT INTO counter VALUES
 	('2020-03-30',25439,DEFAULT,DEFAULT),
@@ -110,13 +110,26 @@ INSERT INTO counter VALUES
 
 --house bill
 --This package show you "how much house has consumed energy per month"
+
+--Drop proc
+DROP PROCEDURE houseBill
+
+--Create proc
 GO
-	DECLARE @var1 AS FLOAT
-	DECLARE @var2 AS FLOAT
-	DECLARE @result AS FLOAT
+	CREATE PROCEDURE houseBill AS 
 	BEGIN
-		SELECT TOP 1 @var1 = counterMWH FROM counter ORDER BY counterDate DESC
-		SELECT TOP 1 @var2 = counterMWH FROM counter WHERE counterMWH IN (SELECT TOP 2 counterMWH FROM counter ORDER BY counterDate DESC)
-		PRINT @var1 - @var2
+		DECLARE @var1 AS FLOAT
+		DECLARE @var2 AS FLOAT
+		DECLARE @result AS FLOAT
+		BEGIN
+			SELECT TOP 1 @var1 = counterMWH FROM counter ORDER BY counterDate DESC
+			SELECT TOP 1 @var2 = counterMWH FROM counter WHERE counterMWH IN (SELECT TOP 2 counterMWH FROM counter ORDER BY counterDate DESC)
+			SELECT TOP 1 @result = tariffPrice FROM tariff ORDER BY tariffPrice DESC 
+			SET @result = @result * (@var1 - @var2)
+			PRINT @result
+		END
 	END
 GO
+
+--Run proc.
+EXEC houseBill
