@@ -121,12 +121,21 @@ GO
 		DECLARE @var1 AS FLOAT
 		DECLARE @var2 AS FLOAT
 		DECLARE @result AS FLOAT
+
+		DECLARE 
 		BEGIN
+			--Find house bill 
 			SELECT TOP 1 @var1 = counterMWH FROM counter ORDER BY counterDate DESC
 			SELECT TOP 1 @var2 = counterMWH FROM counter WHERE counterMWH IN (SELECT TOP 2 counterMWH FROM counter ORDER BY counterDate DESC)
 			SELECT TOP 1 @result = tariffPrice FROM tariff ORDER BY tariffPrice DESC 
 			SET @result = @result * (@var1 - @var2)
-			PRINT @result
+
+			--Площадь отпления в квартире 
+			SELECT SUM(apartmentSquare), SUM(apartmentPercent) FROM apartmentInfo
+
+			
+
+
 		END
 	END
 GO
