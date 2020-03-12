@@ -44,8 +44,10 @@ CREATE TABLE counter (
 --paymentApartment
 CREATE TABLE paymentApartment (
 	apartmentID INT NOT NULL, -- id квартиры
+	apartmentSquare FLOAT NOT NULL, -- Площадь квартиры
 	heatingApartmentSquare FLOAT NOT NULL, -- Отапливаемая площадь в квартире
 	apartmentSquarePrice MONEY NOT NULL, -- Цена за один м2
+	tariff FLOAT NOT NULL, -- Тариф
 	apartmentePrice MONEY NOT NULL, -- Цена за всю отапливаемую площадь
 	scoreDate DATE NOT NULL, -- Дата
 	CONSTRAINT FK_apartmentID FOREIGN KEY(apartmentID) REFERENCES apartmentInfo (apartmentID),
@@ -136,33 +138,12 @@ GO
 		DECLARE @var2 AS FLOAT
 		DECLARE @result AS FLOAT
 		DECLARE @allSquare AS FLOAT
-		DECLARE @oneM AS FLOAT
-		DECLARE 
-		BEGIN
-			--Find house bill 
-			SELECT TOP 1 @var1 = counterMWH FROM counter ORDER BY counterDate DESC
-			SELECT TOP 1 @var2 = counterMWH FROM counter WHERE counterMWH IN (SELECT TOP 2 counterMWH FROM counter ORDER BY counterDate DESC)
-			SELECT TOP 1 @result = tariffPrice FROM tariff ORDER BY tariffPrice DESC 
-			SET @result = @result * (@var1 - @var2)
-
-			--Площадь отпления в квартире 
-			SELECT apartmentSquare * (apartmentPercent / 100) AS apartmentHeating FROM apartmentInfo
-			SELECT @allSquare = SUM(apartmentSquare * (apartmentPercent / 100)) FROM apartmentInfo
-			SET @oneM = @result/@allSquare 
-		END
-	END
-GO
-
-GO
-		DECLARE @var1 AS FLOAT
-		DECLARE @var2 AS FLOAT
-		DECLARE @result AS FLOAT
-		DECLARE @allSquare AS FLOAT
 		DECLARE @oneMPrice AS FLOAT
 		DECLARE @tariff AS FLOAT
-
+		DECLARE @date AS DATE
 		BEGIN
 			--Поиск кол-во потребленной энергии
+			SELECT @date = counterDate FROM counter ORDER BY counterDate DESC
 			SELECT TOP 1 @var1 = counterMWH FROM counter ORDER BY counterDate DESC
 			SELECT TOP 1 @var2 = counterMWH FROM counter WHERE counterMWH IN (SELECT TOP 2 counterMWH FROM counter ORDER BY counterDate DESC)
 			SELECT TOP 1 @tariff = tariffPrice FROM tariff ORDER BY tariffPrice DESC 
@@ -172,16 +153,20 @@ GO
 			SELECT @allSquare = SUM(apartmentSquare * (apartmentPercent / 100)) FROM apartmentInfo
 			SET @oneMPrice = @result/@allSquare
 
-			SELECT apartmentID,
-			apartmentSquare * (apartmentPercent / 100) AS heatingApartmentSquare,
-			@oneMPrice AS apartmentSquarePrice,
-			@oneMPrice * (apartmentSquare * (apartmentPercent / 100)) AS apartmentePrice,
-
-			FROM apartmentInfo
-
+			--Вставка данных в таблицу
+			INSERT INTO paymentApartment 
+				SELECT apartmentID,
+				apartmentSquare AS apartmentSquare,
+				apartmentSquare * (apartmentPercent / 100) AS heatingApartmentSquare,
+				@oneMPrice AS apartmentSquarePrice,
+				@tariff AS tariff,
+				@oneMPrice * (apartmentSquare * (apartmentPercent / 100)) AS apartmentePrice,
+				@date AS scoreDate
+				FROM apartmentInfo
 			
 		END
+	END
 GO
-INSERT INTO paymentApartment VALUES SELECT apartmentID,  FROM apartmentInfo
+
 --Run proc. 
 EXEC houseBill
