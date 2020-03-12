@@ -113,12 +113,22 @@ INSERT INTO tariff (tariffDate,tariffPrice) VALUES
 GO
 	CREATE PROCEDURE addCounter (@counterMWH FLOAT, @enterDate DATE) AS
 		BEGIN
-			INSERT INTO counter VALUES
-				(EOMONTH ( @enterDate, -1 ),@counterMWH,DEFAULT,@enterDate)
+			IF DAY(@enterDate) <= 28
+				BEGIN
+					INSERT INTO counter VALUES (EOMONTH ( @enterDate, -1 ),@counterMWH,DEFAULT,@enterDate)
+				END
+			ELSE
+				BEGIN
+					INSERT INTO counter VALUES (EOMONTH ( @enterDate, -2 ),@counterMWH,DEFAULT,@enterDate)
+				END
 		END
 GO
 
-EXEC addCounter '5','2020-04-5'
+--Drop proc
+DROP PROCEDURE addCounter
+
+--Run proc. 
+EXEC addCounter '6','2020-03-15'
 
 --######################################
 --Create proc
@@ -133,14 +143,24 @@ GO
 		DECLARE @tariff AS FLOAT
 		DECLARE @date AS DATE
 		BEGIN
-			--Поиск кол-во потребленной энергии
-			SELECT @date = counterDate FROM counter ORDER BY counterDate DESC
-			SELECT TOP 1 @var1 = counterMWH FROM counter ORDER BY counterDate DESC
-			SELECT TOP 1 @var2 = counterMWH FROM counter WHERE counterMWH IN (SELECT TOP 2 counterMWH FROM counter ORDER BY counterDate DESC)
+			--Создание переменных для дальнейшего запроса
+			SELECT TOP 1 @date = counterDate FROM counter ORDER BY counterDate DESC
 			SELECT TOP 1 @tariff = tariffPrice FROM tariff ORDER BY tariffPrice DESC 
-			SET @result = @tariff * (@var1 - @var2)
 
-			--Площадь отпления в квартире 
+			--Поиск кол-во потребленной энергии
+			IF(SELECT COUNT(*) FROM counter) > 1
+				BEGIN
+					SELECT TOP 1 @var1 = counterMWH FROM counter ORDER BY counterDate DESC
+					SELECT TOP 1 @var2 = counterMWH FROM counter WHERE counterMWH IN (SELECT TOP 2 counterMWH FROM counter ORDER BY counterDate DESC)
+					SET @result = @tariff * (@var1 - @var2)
+				END
+			ELSE
+				BEGIN
+					SELECT TOP 1 @var1 = counterMWH FROM counter ORDER BY counterDate DESC
+					SET @result = @tariff * @var1
+				END
+
+			--Определение всех площадей и поиск 1ого м2
 			SELECT @allSquare = SUM(apartmentSquare * (apartmentPercent / 100)) FROM apartmentInfo
 			SET @oneMPrice = @result/@allSquare
 
@@ -154,6 +174,9 @@ GO
 				@oneMPrice * (apartmentSquare * (apartmentPercent / 100)) AS apartmentePrice,
 				@date AS scoreDate
 				FROM apartmentInfo
+
+			--Вывод данных, которые были только-что вставленны
+			SELECT * FROM paymentApartment
 		END
 	END
 GO
@@ -163,5 +186,3 @@ DROP PROCEDURE houseBill
 
 --Run proc. 
 EXEC houseBill
-
-
