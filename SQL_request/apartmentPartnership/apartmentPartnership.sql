@@ -50,8 +50,8 @@ CREATE TABLE paymentApartment (
 	tariff FLOAT NOT NULL, -- Тариф
 	apartmentePrice MONEY NOT NULL, -- Цена за всю отапливаемую площадь
 	scoreDate DATE NOT NULL, -- Дата
-	CONSTRAINT FK_apartmentID FOREIGN KEY(apartmentID) REFERENCES apartmentInfo (apartmentID),
-	CONSTRAINT FK_scoreDate FOREIGN KEY(scoreDate) REFERENCES counter (counterDate)
+	CONSTRAINT FK_apartmentID FOREIGN KEY(apartmentID) REFERENCES apartmentInfo (apartmentID) ON DELETE CASCADE,
+	CONSTRAINT FK_scoreDate FOREIGN KEY(scoreDate) REFERENCES counter (counterDate) ON DELETE CASCADE
 )
 
 
@@ -64,6 +64,9 @@ DROP TABLE apartmentInfo
 DROP TABLE tariff
 DROP TABLE counter
 DROP TABLE paymentApartment
+
+--Delete query 
+DELETE FROM paymentApartment WHERE apartmentID = 1
 
 --Select query
 SELECT * FROM owners
@@ -104,30 +107,20 @@ INSERT INTO apartmentInfo VALUES
 INSERT INTO tariff (tariffDate,tariffPrice) VALUES
 	('2020-03-06',66.26)
 
---Counter insert
-INSERT INTO counter VALUES
-	('2020-01-31',10,DEFAULT,DEFAULT)
-
-INSERT INTO counter VALUES
-	('2020-03-30',20,DEFAULT,DEFAULT),
-	('2020-04-30',25,DEFAULT,DEFAULT)
-
-INSERT INTO counter VALUES
-	('2020-05-30',30,DEFAULT,DEFAULT),
-	('2020-06-30',35,DEFAULT,DEFAULT)
-
-INSERT INTO counter VALUES
-	('2020-07-30',40,DEFAULT,DEFAULT),
-	('2020-08-30',45,DEFAULT,DEFAULT)
-
 --Procedures and functions 
+--Make function
 
---house bill
---This package show you "how much house has consumed energy per month"
+GO
+	CREATE PROCEDURE addCounter (@counterMWH FLOAT, @enterDate DATE) AS
+		BEGIN
+			INSERT INTO counter VALUES
+				(EOMONTH ( @enterDate, -1 ),@counterMWH,DEFAULT,@enterDate)
+		END
+GO
 
---Drop proc
-DROP PROCEDURE houseBill
+EXEC addCounter '5','2020-04-5'
 
+--######################################
 --Create proc
 GO
 	CREATE PROCEDURE houseBill AS 
@@ -165,16 +158,10 @@ GO
 	END
 GO
 
+--Drop proc
+DROP PROCEDURE houseBill
+
 --Run proc. 
 EXEC houseBill
 
---Make function
-GO
-	CREATE PROCEDURE addCounter (@counterMWH FLOAT, @enterDate DATE) AS
-		BEGIN
-			INSERT INTO counter VALUES
-				(EOMONTH ( @enterDate, -1 ),@counterMWH,DEFAULT,@enterDate)
-		END
-GO
 
-EXEC addCounter '55','2020-2-2'
