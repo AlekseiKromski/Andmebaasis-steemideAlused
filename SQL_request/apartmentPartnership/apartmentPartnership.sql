@@ -38,7 +38,7 @@ CREATE TABLE counter (
 	counterDate DATE PRIMARY KEY NOT NULL,
 	counterMWH FLOAT NOT NULL,
 	userEnter VARCHAR(15) NOT NULL DEFAULT 'admin',
-	counterEnter DATE NOT NULL DEFAULT GETDATE()
+	counterEnter DATE NOT NULL 
 )
 
 --paymentApartment
@@ -106,14 +106,12 @@ INSERT INTO tariff (tariffDate,tariffPrice) VALUES
 
 --Counter insert
 INSERT INTO counter VALUES
-	('2020-01-31',10,DEFAULT,DEFAULT),
-	('2020-02-28',15,DEFAULT,DEFAULT)
+	('2020-01-31',10,DEFAULT,DEFAULT)
 
 INSERT INTO counter VALUES
 	('2020-03-30',20,DEFAULT,DEFAULT),
 	('2020-04-30',25,DEFAULT,DEFAULT)
 
---For test
 INSERT INTO counter VALUES
 	('2020-05-30',30,DEFAULT,DEFAULT),
 	('2020-06-30',35,DEFAULT,DEFAULT)
@@ -163,10 +161,20 @@ GO
 				@oneMPrice * (apartmentSquare * (apartmentPercent / 100)) AS apartmentePrice,
 				@date AS scoreDate
 				FROM apartmentInfo
-			
 		END
 	END
 GO
 
 --Run proc. 
 EXEC houseBill
+
+--Make function
+GO
+	CREATE PROCEDURE addCounter (@counterMWH FLOAT, @enterDate DATE) AS
+		BEGIN
+			INSERT INTO counter VALUES
+				(EOMONTH ( @enterDate, -1 ),@counterMWH,DEFAULT,@enterDate)
+		END
+GO
+
+EXEC addCounter '55','2020-2-2'
