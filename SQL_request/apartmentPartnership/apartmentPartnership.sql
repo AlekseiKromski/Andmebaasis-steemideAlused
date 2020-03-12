@@ -1,4 +1,4 @@
---Create database (For school and personal pc)
+п»ї--Create database (For school and personal pc)
 CREATE DATABASE apartmentPartnership
 	ON (NAME = projects_dat, FILENAME = 'D:\JPTVR18\Andmebaasis-steemideAlused\SQL_request\apartmentPartnership\db\projects.mdf', SIZE = 5, MAXSIZE = 100, FILEGROWTH = 5)
 	LOG ON (NAME = projects_log, FILENAME = 'D:\JPTVR18\Andmebaasis-steemideAlused\SQL_request\apartmentPartnership\jr\projects.ldf', SIZE = 10, MAXSIZE = 100, FILEGROWTH = 10)
@@ -130,7 +130,7 @@ GO
 			SELECT TOP 1 @result = tariffPrice FROM tariff ORDER BY tariffPrice DESC 
 			SET @result = @result * (@var1 - @var2)
 
-			--Площадь отпления в квартире 
+			--РџР»РѕС‰Р°РґСЊ РѕС‚РїР»РµРЅРёСЏ РІ РєРІР°СЂС‚РёСЂРµ 
 			SELECT SUM(apartmentSquare), SUM(apartmentPercent) FROM apartmentInfo
 
 			
@@ -140,5 +140,5 @@ GO
 	END
 GO
 
---Run proc.
+--Run proc. 
 EXEC houseBill
