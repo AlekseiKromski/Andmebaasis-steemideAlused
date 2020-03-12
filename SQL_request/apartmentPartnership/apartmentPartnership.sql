@@ -35,11 +35,23 @@ CREATE TABLE tariff (
 
 --Counter table 
 CREATE TABLE counter (
-	counterDate DATE NOT NULL,
+	counterDate DATE PRIMARY KEY NOT NULL,
 	counterMWH FLOAT NOT NULL,
 	userEnter VARCHAR(15) NOT NULL DEFAULT 'admin',
 	counterEnter DATE NOT NULL DEFAULT GETDATE()
 )
+
+--paymentApartment
+CREATE TABLE paymentApartment (
+	apartmentID INT NOT NULL, -- id квартиры
+	heatingApartmentSquare FLOAT NOT NULL, -- Отапливаемая площадь в квартире
+	apartmentSquarePrice MONEY NOT NULL, -- Цена за один м2
+	apartmentePrice MONEY NOT NULL, -- Цена за всю отапливаемую площадь
+	scoreDate DATE NOT NULL, -- Дата
+	CONSTRAINT FK_apartmentID FOREIGN KEY(apartmentID) REFERENCES apartmentInfo (apartmentID),
+	CONSTRAINT FK_scoreDate FOREIGN KEY(scoreDate) REFERENCES counter (counterDate)
+)
+
 
 --### QUERY ###
 USE apartmentPartnership
@@ -49,12 +61,14 @@ DROP TABLE owners
 DROP TABLE apartmentInfo
 DROP TABLE tariff
 DROP TABLE counter
+DROP TABLE paymentApartment
 
 --Select query
 SELECT * FROM owners
 SELECT * FROM apartmentInfo
 SELECT * FROM tariff
 SELECT * FROM counter
+SELECT * FROM paymentApartment
 
 --Insert query
 
@@ -90,21 +104,21 @@ INSERT INTO tariff (tariffDate,tariffPrice) VALUES
 
 --Counter insert
 INSERT INTO counter VALUES
-	('2020-01-31',15439,DEFAULT,DEFAULT),
-	('2020-02-28',20439,DEFAULT,DEFAULT)
+	('2020-01-31',10,DEFAULT,DEFAULT),
+	('2020-02-28',15,DEFAULT,DEFAULT)
 
 INSERT INTO counter VALUES
-	('2020-03-30',25439,DEFAULT,DEFAULT),
-	('2020-04-30',30000,DEFAULT,DEFAULT)
+	('2020-03-30',20,DEFAULT,DEFAULT),
+	('2020-04-30',25,DEFAULT,DEFAULT)
 
 --For test
 INSERT INTO counter VALUES
-	('2020-05-30',35000,DEFAULT,DEFAULT),
-	('2020-06-30',40000,DEFAULT,DEFAULT)
+	('2020-05-30',30,DEFAULT,DEFAULT),
+	('2020-06-30',35,DEFAULT,DEFAULT)
 
 INSERT INTO counter VALUES
-	('2020-07-30',45000,DEFAULT,DEFAULT),
-	('2020-08-30',50000,DEFAULT,DEFAULT)
+	('2020-07-30',40,DEFAULT,DEFAULT),
+	('2020-08-30',45,DEFAULT,DEFAULT)
 
 --Procedures and functions 
 
@@ -121,7 +135,8 @@ GO
 		DECLARE @var1 AS FLOAT
 		DECLARE @var2 AS FLOAT
 		DECLARE @result AS FLOAT
-
+		DECLARE @allSquare AS FLOAT
+		DECLARE @oneM AS FLOAT
 		DECLARE 
 		BEGIN
 			--Find house bill 
@@ -131,14 +146,42 @@ GO
 			SET @result = @result * (@var1 - @var2)
 
 			--Площадь отпления в квартире 
-			SELECT SUM(apartmentSquare), SUM(apartmentPercent) FROM apartmentInfo
-
-			
-
-
+			SELECT apartmentSquare * (apartmentPercent / 100) AS apartmentHeating FROM apartmentInfo
+			SELECT @allSquare = SUM(apartmentSquare * (apartmentPercent / 100)) FROM apartmentInfo
+			SET @oneM = @result/@allSquare 
 		END
 	END
 GO
 
+GO
+		DECLARE @var1 AS FLOAT
+		DECLARE @var2 AS FLOAT
+		DECLARE @result AS FLOAT
+		DECLARE @allSquare AS FLOAT
+		DECLARE @oneMPrice AS FLOAT
+		DECLARE @tariff AS FLOAT
+
+		BEGIN
+			--Поиск кол-во потребленной энергии
+			SELECT TOP 1 @var1 = counterMWH FROM counter ORDER BY counterDate DESC
+			SELECT TOP 1 @var2 = counterMWH FROM counter WHERE counterMWH IN (SELECT TOP 2 counterMWH FROM counter ORDER BY counterDate DESC)
+			SELECT TOP 1 @tariff = tariffPrice FROM tariff ORDER BY tariffPrice DESC 
+			SET @result = @tariff * (@var1 - @var2)
+
+			--Площадь отпления в квартире 
+			SELECT @allSquare = SUM(apartmentSquare * (apartmentPercent / 100)) FROM apartmentInfo
+			SET @oneMPrice = @result/@allSquare
+
+			SELECT apartmentID,
+			apartmentSquare * (apartmentPercent / 100) AS heatingApartmentSquare,
+			@oneMPrice AS apartmentSquarePrice,
+			@oneMPrice * (apartmentSquare * (apartmentPercent / 100)) AS apartmentePrice,
+
+			FROM apartmentInfo
+
+			
+		END
+GO
+INSERT INTO paymentApartment VALUES SELECT apartmentID,  FROM apartmentInfo
 --Run proc. 
 EXEC houseBill
