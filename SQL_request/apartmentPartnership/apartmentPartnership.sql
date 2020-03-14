@@ -7,7 +7,8 @@ CREATE DATABASE apartmentPartnership
 	ON (NAME = projects_dat, FILENAME = 'C:\Andmebaasis-steemideAlused\SQL_request\apartmentPartnership\db\projects.mdf', SIZE = 5, MAXSIZE = 100, FILEGROWTH = 5)
 	LOG ON (NAME = projects_log, FILENAME = 'C:\Andmebaasis-steemideAlused\SQL_request\apartmentPartnership\jr\projects.ldf', SIZE = 10, MAXSIZE = 100, FILEGROWTH = 10)
 
---Create tables
+--######################################
+
 --Owner table
 CREATE TABLE owners (ownerId VARCHAR(11) PRIMARY KEY NOT NULL,
 		ownerLname VARCHAR(40) NOT NULL,
@@ -54,8 +55,30 @@ CREATE TABLE paymentApartment (
 	CONSTRAINT FK_scoreDate FOREIGN KEY(scoreDate) REFERENCES counter (counterDate) ON DELETE CASCADE
 )
 
+--houseBillHistory
+CREATE TABLE houseBillHistory (
+	historyID INT IDENTITY PRIMARY KEY,
+    Operation NVARCHAR(200) NOT NULL,
+    CreateAt DATETIME NOT NULL DEFAULT GETDATE()
+)
 
---### QUERY ###
+--ownerHistory
+CREATE TABLE ownerHistory (
+	historyID INT IDENTITY PRIMARY KEY,
+    Operation NVARCHAR(200) NOT NULL,
+    CreateAt DATETIME NOT NULL DEFAULT GETDATE()
+)
+
+--apartmentInfoHistory
+CREATE TABLE apartmentInfoHistory (
+	historyID INT IDENTITY PRIMARY KEY,
+    Operation NVARCHAR(200) NOT NULL,
+    CreateAt DATETIME NOT NULL DEFAULT GETDATE()
+)
+
+--######################################
+
+--### QUERY FOR TESTING ###
 USE apartmentPartnership
 
 --Drop query
@@ -107,8 +130,9 @@ INSERT INTO apartmentInfo VALUES
 INSERT INTO tariff (tariffDate,tariffPrice) VALUES
 	('2020-03-06',66.26)
 
---Procedures and functions 
---Make function
+--######################################
+
+--Make proc
 
 GO
 	CREATE PROCEDURE addCounter (@counterMWH FLOAT, @enterDate DATE) AS
@@ -128,10 +152,9 @@ GO
 DROP PROCEDURE addCounter
 
 --Run proc. 
-EXEC addCounter '6','2020-03-15'
+EXEC addCounter '5','2020-04-20'
 
---######################################
---Create proc
+
 GO
 	CREATE PROCEDURE houseBill AS 
 	BEGIN
@@ -143,11 +166,11 @@ GO
 		DECLARE @tariff AS FLOAT
 		DECLARE @date AS DATE
 		BEGIN
-			--Создание переменных для дальнейшего запроса
+			--Create variable for future requsets
 			SELECT TOP 1 @date = counterDate FROM counter ORDER BY counterDate DESC
 			SELECT TOP 1 @tariff = tariffPrice FROM tariff ORDER BY tariffPrice DESC 
 
-			--Поиск кол-во потребленной энергии
+			--Find amount of energy consumed
 			IF(SELECT COUNT(*) FROM counter) > 1
 				BEGIN
 					SELECT TOP 1 @var1 = counterMWH FROM counter ORDER BY counterDate DESC
@@ -160,11 +183,11 @@ GO
 					SET @result = @tariff * @var1
 				END
 
-			--Определение всех площадей и поиск 1ого м2
+			--Identification of all areas and the search for 1 m2
 			SELECT @allSquare = SUM(apartmentSquare * (apartmentPercent / 100)) FROM apartmentInfo
 			SET @oneMPrice = @result/@allSquare
 
-			--Вставка данных в таблицу
+			--Insert data into table
 			INSERT INTO paymentApartment 
 				SELECT apartmentID,
 				apartmentSquare AS apartmentSquare,
@@ -186,3 +209,152 @@ DROP PROCEDURE houseBill
 
 --Run proc. 
 EXEC houseBill
+
+--######################################
+
+--Make triggers
+
+--This trigger will be insert data into 'houseBillHistory' table 
+GO
+	CREATE TRIGGER houseBillHistory_inserted ON paymentApartment AFTER INSERT
+	AS 
+		BEGIN
+			INSERT INTO houseBillHistory (Operation,CreateAt) VALUES ('new calculations for the month', DEFAULT)
+			SELECT * FROM houseBillHistory
+		END
+GO
+
+--Drop houseBillHistory_inserted trigger
+DROP TRIGGER houseBillHistory_inserted
+
+--Requset to houseBillHistory_inserted
+SELECT * FROM houseBillHistory
+
+--Triggers for ownerHistory
+
+CREATE TRIGGER owner_inserted ON owners AFTER INSERT
+	AS
+		BEGIN
+			INSERT INTO ownerHistory (Operation,CreateAt) VALUES ('INSERT', DEFAULT)
+			SELECT * FROM ownerHistory
+		END	
+
+CREATE TRIGGER owner_updated ON owners AFTER UPDATE
+	AS
+		IF UPDATE(ownerId)
+			BEGIN
+				INSERT INTO ownerHistory (Operation,CreateAt) VALUES ('UPDATE', DEFAULT)
+				SELECT * FROM ownerHistory
+			END	
+
+CREATE TRIGGER owner_deleted ON owners AFTER DELETE
+	AS
+		BEGIN
+			INSERT INTO ownerHistory (Operation,CreateAt) VALUES ('DELETE', DEFAULT)
+			SELECT * FROM ownerHistory
+		END	
+
+--Drop owner trigger
+DROP TRIGGER owner_inserted
+DROP TRIGGER owner_deleted
+DROP TRIGGER owner_updated
+
+--Requset to owner
+
+UPDATE owners SET ownerId = '50208302215' WHERE ownerId = '15' 
+UPDATE owners SET ownerId = '15' WHERE ownerId = '50208302215' 
+
+DELETE FROM owners WHERE ownerId = '15'
+
+SELECT * FROM owners
+
+--Triggers for apartmentInfoHistory
+CREATE TRIGGER apartmentInfoHistory_inserted ON apartmentInfo AFTER INSERT
+	AS
+		BEGIN
+			INSERT INTO apartmentInfoHistory (Operation,CreateAt) VALUES ('INSERT', DEFAULT)
+			SELECT * FROM apartmentInfoHistory
+		END	
+
+CREATE TRIGGER apartmentInfoHistory_updated ON apartmentInfo AFTER UPDATE
+	AS
+		IF UPDATE(apartmentSquare)
+			BEGIN
+				INSERT INTO apartmentInfoHistory (Operation,CreateAt) VALUES ('UPDATE', DEFAULT)
+				SELECT * FROM apartmentInfoHistory
+			END	
+		IF UPDATE(apartmentTypeHeating)
+			BEGIN
+				INSERT INTO apartmentInfoHistory (Operation,CreateAt) VALUES ('UPDATE', DEFAULT)
+				SELECT * FROM apartmentInfoHistory
+			END	
+		IF UPDATE(apartmentPercent)
+			BEGIN
+				INSERT INTO apartmentInfoHistory (Operation,CreateAt) VALUES ('UPDATE', DEFAULT)
+				SELECT * FROM apartmentInfoHistory
+			END
+		IF UPDATE(apartmentOwner)
+			BEGIN
+				INSERT INTO apartmentInfoHistory (Operation,CreateAt) VALUES ('UPDATE', DEFAULT)
+				SELECT * FROM apartmentInfoHistory
+			END
+
+CREATE TRIGGER apartmentInfoHistory_deleted ON apartmentInfo AFTER DELETE
+	AS
+		BEGIN
+			INSERT INTO apartmentInfoHistory (Operation,CreateAt) VALUES ('DELETE', DEFAULT)
+			SELECT * FROM apartmentInfoHistory
+		END
+
+--Drop apartmentInfo trigger
+DROP TRIGGER apartmentInfoHistory_inserted
+DROP TRIGGER apartmentInfoHistory_updated
+DROP TRIGGER apartmentInfoHistory_deleted
+
+--Requset to apartmentInfoHistory
+UPDATE apartmentInfo SET apartmentPercent = '200' WHERE apartmentPercent = '100' 
+
+DELETE FROM apartmentInfo WHERE apartmentPercent = '200'
+
+SELECT * FROM apartmentInfo
+
+--######################################
+
+--Function to display owner information
+GO
+	CREATE FUNCTION	ownerInfo (@ownerId VARCHAR(15))
+	RETURNS TABLE
+		AS RETURN (SELECT * FROM owners WHERE ownerId = @ownerId)
+GO
+
+SELECT * FROM ownerInfo('50208302215')
+
+--Function for displaying information about the apartment by owner 
+GO
+	CREATE FUNCTION	apartmentInfoByOwner (@ownerId VARCHAR(15))
+	RETURNS TABLE
+		AS RETURN (SELECT * FROM apartmentInfo WHERE apartmentOwner = @ownerId)
+GO
+
+SELECT * FROM apartmentInfoByOwner('50208302215')
+
+--Conclusion of apartment bills
+GO
+	CREATE FUNCTION	houseBullByOwner (@ownerId VARCHAR(15))
+	RETURNS TABLE
+		AS RETURN (SELECT paymentApartment.*, apartmentInfo.apartmentOwner FROM paymentApartment 
+		INNER JOIN apartmentInfo ON paymentApartment.apartmentID = apartmentInfo.apartmentID WHERE apartmentOwner = @ownerId)
+GO
+
+DROP FUNCTION houseBullByOwner
+
+SELECT * FROM houseBullByOwner('50209232215')
+
+--######################################
+
+--Display all user information
+CREATE VIEW allInfoAboutOwner AS
+	SELECT * FROM apartmentInfo
+	INNER JOIN owners ON apartmentInfo.apartmentOwner = owners.ownerId
+
+SELECT * FROM allInfoAboutOwners
