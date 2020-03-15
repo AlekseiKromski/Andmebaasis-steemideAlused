@@ -88,8 +88,8 @@ DROP TABLE tariff
 DROP TABLE counter
 DROP TABLE paymentApartment
 DROP TABLE houseBillHistory
-DROP TABLE houseBillHistory
-DROP TABLE houseBillHistory
+DROP TABLE ownerHistory
+DROP TABLE apartmentInfoHistory
 --Delete query 
 DELETE FROM paymentApartment WHERE apartmentID = 1
 
@@ -99,6 +99,9 @@ SELECT * FROM apartmentInfo
 SELECT * FROM tariff
 SELECT * FROM counter
 SELECT * FROM paymentApartment
+SELECT * FROM houseBillHistory
+SELECT * FROM ownerHistory
+SELECT * FROM apartmentInfoHistory
 
 --Insert query
 
