@@ -87,7 +87,9 @@ DROP TABLE apartmentInfo
 DROP TABLE tariff
 DROP TABLE counter
 DROP TABLE paymentApartment
-
+DROP TABLE houseBillHistory
+DROP TABLE houseBillHistory
+DROP TABLE houseBillHistory
 --Delete query 
 DELETE FROM paymentApartment WHERE apartmentID = 1
 
