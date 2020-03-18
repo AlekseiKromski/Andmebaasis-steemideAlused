@@ -382,11 +382,3 @@ DROP VIEW allInfoAboutOwner
 
 SELECT * FROM allInfoAboutOwner
 
---######################################
---Create users 
-
---Create admin account
-CREATE LOGIN admin WITH PASSWORD ='admin'
-
---Make admin role in db
-CREATE SERVER ROLE admin_ap AUTHORIZATION admin
