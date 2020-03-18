@@ -5,7 +5,7 @@
 --Процедура для добавления нового показания счетчика
 	--1. Коль-во MWH 
 	--2. Дата, когда ввели данные
-EXEC addCounter '5','2020-04-20'
+EXEC addCounter '3','2020-03-16'
 
 --Процедура для расчета счета по каждой квартире
 --Процедура сама берет все нужные для ее работы данные и добавляет их в таблицу. В конце работы процедуры выводиться та самая таблица
@@ -30,4 +30,15 @@ SELECT * FROM houseBullByOwner('50209232215')
 --Показ представлений
 
 --Выводит всю доступную информацию о всех пользоватклях
-SELECT * FROM allInfoAboutOwners
+SELECT * FROM allInfoAboutOwner
+
+--##############################################
+--Запросы для просмотра базы данных
+SELECT * FROM owners
+SELECT * FROM apartmentInfo
+SELECT * FROM tariff
+SELECT * FROM counter
+SELECT * FROM paymentApartment
+SELECT * FROM houseBillHistory
+SELECT * FROM ownerHistory
+SELECT * FROM apartmentInfoHistory

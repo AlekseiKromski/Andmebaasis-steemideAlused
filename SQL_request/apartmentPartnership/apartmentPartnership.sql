@@ -9,6 +9,8 @@ CREATE DATABASE apartmentPartnership
 
 --######################################
 
+USE apartmentPartnership
+
 --Owner table
 CREATE TABLE owners (ownerId VARCHAR(11) PRIMARY KEY NOT NULL,
 		ownerLname VARCHAR(40) NOT NULL,
@@ -79,7 +81,6 @@ CREATE TABLE apartmentInfoHistory (
 --######################################
 
 --### QUERY FOR TESTING ###
-USE apartmentPartnership
 
 --Drop query
 DROP TABLE owners
@@ -90,6 +91,7 @@ DROP TABLE paymentApartment
 DROP TABLE houseBillHistory
 DROP TABLE ownerHistory
 DROP TABLE apartmentInfoHistory
+
 --Delete query 
 DELETE FROM paymentApartment WHERE apartmentID = 1
 
@@ -133,7 +135,9 @@ INSERT INTO apartmentInfo VALUES
 
 --tariff insert
 INSERT INTO tariff (tariffDate,tariffPrice) VALUES
-	('2020-03-06',66.26)
+	('2019-12-15',66.26)
+
+DELETE FROM tariff WHERE tariffID = 1
 
 --######################################
 
@@ -157,7 +161,7 @@ GO
 DROP PROCEDURE addCounter
 
 --Run proc. 
-EXEC addCounter '5','2020-04-20'
+EXEC addCounter '1','2020-01-20'
 
 
 GO
@@ -237,27 +241,33 @@ SELECT * FROM houseBillHistory
 
 --Triggers for ownerHistory
 
-CREATE TRIGGER owner_inserted ON owners AFTER INSERT
+GO
+	CREATE TRIGGER owner_inserted ON owners AFTER INSERT
 	AS
 		BEGIN
 			INSERT INTO ownerHistory (Operation,CreateAt) VALUES ('INSERT', DEFAULT)
 			SELECT * FROM ownerHistory
 		END	
+GO
 
-CREATE TRIGGER owner_updated ON owners AFTER UPDATE
+GO
+	CREATE TRIGGER owner_updated ON owners AFTER UPDATE
 	AS
 		IF UPDATE(ownerId)
 			BEGIN
 				INSERT INTO ownerHistory (Operation,CreateAt) VALUES ('UPDATE', DEFAULT)
 				SELECT * FROM ownerHistory
 			END	
+GO
 
-CREATE TRIGGER owner_deleted ON owners AFTER DELETE
+GO
+	CREATE TRIGGER owner_deleted ON owners AFTER DELETE
 	AS
 		BEGIN
 			INSERT INTO ownerHistory (Operation,CreateAt) VALUES ('DELETE', DEFAULT)
 			SELECT * FROM ownerHistory
 		END	
+GO
 
 --Drop owner trigger
 DROP TRIGGER owner_inserted
@@ -274,14 +284,17 @@ DELETE FROM owners WHERE ownerId = '15'
 SELECT * FROM owners
 
 --Triggers for apartmentInfoHistory
-CREATE TRIGGER apartmentInfoHistory_inserted ON apartmentInfo AFTER INSERT
+GO
+	CREATE TRIGGER apartmentInfoHistory_inserted ON apartmentInfo AFTER INSERT
 	AS
 		BEGIN
 			INSERT INTO apartmentInfoHistory (Operation,CreateAt) VALUES ('INSERT', DEFAULT)
 			SELECT * FROM apartmentInfoHistory
 		END	
+GO
 
-CREATE TRIGGER apartmentInfoHistory_updated ON apartmentInfo AFTER UPDATE
+GO
+	CREATE TRIGGER apartmentInfoHistory_updated ON apartmentInfo AFTER UPDATE
 	AS
 		IF UPDATE(apartmentSquare)
 			BEGIN
@@ -303,13 +316,16 @@ CREATE TRIGGER apartmentInfoHistory_updated ON apartmentInfo AFTER UPDATE
 				INSERT INTO apartmentInfoHistory (Operation,CreateAt) VALUES ('UPDATE', DEFAULT)
 				SELECT * FROM apartmentInfoHistory
 			END
+GO
 
-CREATE TRIGGER apartmentInfoHistory_deleted ON apartmentInfo AFTER DELETE
+GO
+	CREATE TRIGGER apartmentInfoHistory_deleted ON apartmentInfo AFTER DELETE
 	AS
 		BEGIN
 			INSERT INTO apartmentInfoHistory (Operation,CreateAt) VALUES ('DELETE', DEFAULT)
 			SELECT * FROM apartmentInfoHistory
 		END
+GO
 
 --Drop apartmentInfo trigger
 DROP TRIGGER apartmentInfoHistory_inserted
@@ -362,4 +378,15 @@ CREATE VIEW allInfoAboutOwner AS
 	SELECT * FROM apartmentInfo
 	INNER JOIN owners ON apartmentInfo.apartmentOwner = owners.ownerId
 
-SELECT * FROM allInfoAboutOwners
+DROP VIEW allInfoAboutOwner
+
+SELECT * FROM allInfoAboutOwner
+
+--######################################
+--Create users 
+
+--Create admin account
+CREATE LOGIN admin WITH PASSWORD ='admin'
+
+--Make admin role in db
+CREATE SERVER ROLE admin_ap AUTHORIZATION admin
