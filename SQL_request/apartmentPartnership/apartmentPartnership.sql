@@ -382,3 +382,43 @@ DROP VIEW allInfoAboutOwner
 
 SELECT * FROM allInfoAboutOwner
 
+--######################################
+
+USE apartmentPartnership
+
+
+--admin
+CREATE LOGIN admin_ap WITH PASSWORD = 'admin'
+
+CREATE USER admin_ap FOR LOGIN admin_ap
+
+ALTER SERVER ROLE sysadmin ADD MEMBER admin_ap;
+
+--domhoz
+CREATE LOGIN admin_dom WITH PASSWORD = 'admin_dom' 
+
+CREATE USER admin_dom FOR LOGIN admin_dom
+
+GRANT SELECT ON owners TO admin_dom
+GRANT SELECT ON apartmentInfo TO admin_dom
+GRANT SELECT ON tariff TO admin_dom
+GRANT SELECT ON counter TO admin_dom
+GRANT SELECT ON paymentApartment TO admin_dom
+GRANT SELECT ON houseBillHistory TO admin_dom
+GRANT SELECT ON ownerHistory TO admin_dom
+GRANT SELECT ON apartmentInfoHistory TO admin_dom
+GRANT SELECT ON ownerInfo TO admin_dom
+GRANT SELECT ON apartmentInfoByOwner TO admin_dom
+GRANT SELECT ON houseBullByOwner TO admin_dom
+GRANT SELECT ON allInfoAboutOwner TO admin_dom
+
+GRANT EXEC ON addCounter TO admin_dom
+GRANT EXEC ON houseBill TO admin_dom
+
+GRANT INSERT ON owners TO admin_dom
+GRANT INSERT ON apartmentInfo TO admin_dom
+GRANT INSERT ON tariff TO admin_dom
+
+GRANT UPDATE ON owners TO admin_dom
+GRANT UPDATE ON apartmentInfo TO admin_dom
+GRANT UPDATE ON tariff TO admin_dom
