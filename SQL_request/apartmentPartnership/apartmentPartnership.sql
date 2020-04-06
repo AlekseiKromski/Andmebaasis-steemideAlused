@@ -219,6 +219,20 @@ DROP PROCEDURE houseBill
 --Run proc. 
 EXEC houseBill
 
+--For users
+CREATE PROCEDURE allInfoAboutUser AS 
+		BEGIN
+			DECLARE @user AS VARCHAR(50) 
+			DECLARE @user_id AS VARCHAR(50) 
+			SELECT TOP 1 @user = SUSER_NAME() 
+			SELECT @user_id = STUFF(@user, 1, charindex('_', @user), '')
+			SELECT * FROM apartmentInfoByOwner(@user_id)
+			SELECT * FROM ownerInfo(@user_id)
+			SELECT * FROM houseBullByOwner(@user_id)
+		END	
+
+EXEC allInfoAboutUser
+
 --######################################
 
 --Make triggers
@@ -337,8 +351,6 @@ UPDATE apartmentInfo SET apartmentPercent = '200' WHERE apartmentPercent = '100'
 
 DELETE FROM apartmentInfo WHERE apartmentPercent = '200'
 
-SELECT * FROM apartmentInfo
-
 --######################################
 
 --Function to display owner information
@@ -399,6 +411,7 @@ CREATE LOGIN admin_dom WITH PASSWORD = 'admin_dom'
 
 CREATE USER admin_dom FOR LOGIN admin_dom
 
+--Устанавливаем рарешения для domhoz
 GRANT SELECT ON owners TO admin_dom
 GRANT SELECT ON apartmentInfo TO admin_dom
 GRANT SELECT ON tariff TO admin_dom
@@ -421,4 +434,14 @@ GRANT INSERT ON tariff TO admin_dom
 
 GRANT UPDATE ON owners TO admin_dom
 GRANT UPDATE ON apartmentInfo TO admin_dom
-GRANT UPDATE ON tariff TO admin_dom
+GRANT UPDATE ON tariff TO admin_dom	
+
+
+--User
+CREATE LOGIN user_50208302215 WITH PASSWORD = 'user_50208302215'
+
+CREATE USER user_50208302215 FOR LOGIN user_50208302215
+
+--Устанавливаем рарешения для User
+GRANT EXEC ON allInfoAboutUser TO user_50208302215
+
