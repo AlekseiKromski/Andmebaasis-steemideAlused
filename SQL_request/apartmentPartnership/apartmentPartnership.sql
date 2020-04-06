@@ -103,7 +103,6 @@ SELECT * FROM counter
 SELECT * FROM paymentApartment
 SELECT * FROM houseBillHistory
 SELECT * FROM ownerHistory
-SELECT * FROM apartmentInfoHistory
 
 --Insert query
 
@@ -161,7 +160,7 @@ GO
 DROP PROCEDURE addCounter
 
 --Run proc. 
-EXEC addCounter '1','2020-01-20'
+EXEC addCounter '2','2020-01-20'
 
 
 GO
